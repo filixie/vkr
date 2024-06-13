@@ -6,10 +6,10 @@ from frozendict import frozendict
 from PyQt5.Qt import QApplication
 from PyQt5.QtCore import QTranslator, QLibraryInfo, QLocale
 
-from hw_config.common import finalize
-from hw_config.hw_config_controller import AbstractHardwareConfigController
+from common import finalize
+from hw_config_controller import HardwareConfigController
 
-__all__ = ['main', 'manifest', 'AbstractHardwareConfigController']
+__all__ = ['main', 'manifest', 'HardwareConfigController']
 
 
 qt_translation_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
@@ -38,7 +38,7 @@ def main():
 	for tran in trans.values():
 		app.installTranslator(tran)
 		tran.setParent(app)
-	wnd = AbstractHardwareConfigController()
+	wnd = HardwareConfigController()
 	wnd.show()
 	app.exec()
 

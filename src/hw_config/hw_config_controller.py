@@ -2,13 +2,13 @@ import traceback
 from contextlib import contextmanager
 from dataclasses import dataclass
 
-from PyQt5.QtCore import pyqtSlot, Qt, QObject
-from PyQt5.QtGui import QKeySequence, QCloseEvent, QIcon
+from PyQt5.QtCore import pyqtSlot, QObject
+from PyQt5.QtGui import QKeySequence, QCloseEvent
 from PyQt5.QtWidgets import QMainWindow, QAction, QMessageBox, QMenuBar, qApp, QFileDialog, QWidget, \
 	QComboBox, QVBoxLayout, QLabel
 
-from hw_config.common import ActionSet
-from hw_config.hw_config_model import HardwareConfigModel
+from common import ActionSet
+from hw_config_model import HardwareConfigModel, ComponentCategory
 
 
 class AbstractHardwareConfigController:
@@ -24,7 +24,7 @@ class AbstractHardwareConfigController:
 
 
 # TODO: Separate view (`QMainWindow`) from the controller
-class AbstractHardwareConfigController(QMainWindow, AbstractHardwareConfigController):
+class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 
 	@dataclass(frozen=True)
 	class Actions(ActionSet):
@@ -94,13 +94,22 @@ class AbstractHardwareConfigController(QMainWindow, AbstractHardwareConfigContro
 
 	@classmethod
 	def _createMainForm(cls, receiver: AbstractHardwareConfigController):
-		from hw_config.dummy_data import dummy_data
-
 		layout = QVBoxLayout()
-		for label, data in dummy_data.items():
+
+		from hw_config.dummy_data import dummy_data
+		component_categories = {
+			ComponentCategory.SYSTEM_UNIT: "Системный блок",
+			ComponentCategory.MONITOR:     "Монитор",
+			ComponentCategory.KEYBOARD:    "Клавиатура",
+			ComponentCategory.MOUSE:       "Мышь",
+		}
+		for category, label in component_categories.items():
 			widget = QComboBox()
-			widget.addItems(data)
-			widget.currentIndexChanged.connect(lambda: receiver.model() and receiver.model().touch())
+			widget.addItems(dummy_data[category])
+			widget.setPlaceholderText("(не выбрано)")
+			widget.setCurrentIndex(-1)
+			widget.currentTextChanged.connect(lambda value, cat=category:
+				receiver.model() and receiver.model().setComponent(cat, value))
 			layout.addStretch()
 			layout.addWidget(QLabel(label))
 			layout.addWidget(widget)
@@ -173,7 +182,7 @@ class AbstractHardwareConfigController(QMainWindow, AbstractHardwareConfigContro
 		if answer == QMessageBox.Save:
 			return self.saveConfig()
 		if answer == QMessageBox.Discard:
-			self.setModel(None)
+			self.setModel(None)     # FIXME
 			return True
 		if answer == QMessageBox.Cancel:
 			return False

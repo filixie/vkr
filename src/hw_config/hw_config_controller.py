@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMessageBox, QMenuBar, qApp, Q
 	QComboBox, QVBoxLayout, QLabel
 
 from common import ActionSet
+from search_dialog import SearchDialog
 from hw_config_file import PlainTextFormat, JsonFormat, HtmlFormat
 from refresh_database_dialog import RefreshDatabaseDialog
 from hw_config_model import HardwareConfigModel, ComponentCategory
@@ -19,6 +20,7 @@ class AbstractHardwareConfigController:
 	saveConfig = pyqtSlot()
 	saveConfigAs = pyqtSlot()
 	refreshDatabase = pyqtSlot()
+	findInRegistry = pyqtSlot()
 	displayAboutQt = pyqtSlot()
 	displayAbout = pyqtSlot()
 	close = pyqtSlot()
@@ -38,6 +40,7 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 		print: QAction
 		exit: QAction
 		refresh: QAction
+		find: QAction
 		about: QAction
 		about_qt: QAction
 
@@ -76,6 +79,7 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 		actions.print.pyqtConfigure(text="&Печать...", shortcut=QKeySequence.Print)
 		actions.exit.pyqtConfigure(text="В&ыход")
 		actions.refresh.pyqtConfigure(text="Об&новить БД...", shortcut=QKeySequence.Refresh)
+		actions.find.pyqtConfigure(text="Найти в &РЭП...")
 		actions.about.pyqtConfigure(text="&О программе")
 		actions.about_qt.pyqtConfigure(text="&О Qt")
 
@@ -86,6 +90,7 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 			actions.save_as:  receiver.saveConfigAs,
 			actions.exit:     receiver.close,
 			actions.refresh:  receiver.refreshDatabase,
+			actions.find:     receiver.findInRegistry,
 			actions.about:    receiver.displayAbout,
 			actions.about_qt: receiver.displayAboutQt,
 		}
@@ -106,6 +111,7 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 
 		datum_menu = menu_bar.addMenu("&Данные")
 		datum_menu.addAction(actions.refresh)
+		datum_menu.addAction(actions.find)
 
 		help_menu = menu_bar.addMenu("&Справка")
 		help_menu.addAction(actions.about)
@@ -115,7 +121,7 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 	def _createMainForm(cls, receiver: AbstractHardwareConfigController):
 		layout = QVBoxLayout()
 
-		from hw_config.dummy_data import dummy_data
+		from dummy_data import dummy_data
 		component_categories = {
 			ComponentCategory.SYSTEM_UNIT: "Системный блок",
 			ComponentCategory.MONITOR:     "Монитор",
@@ -270,6 +276,11 @@ class HardwareConfigController(QMainWindow, AbstractHardwareConfigController):
 	@pyqtSlot()
 	def refreshDatabase(self):
 		dialog = RefreshDatabaseDialog(self)
+		dialog.exec()
+
+	@pyqtSlot()
+	def findInRegistry(self):
+		dialog = SearchDialog(self)
 		dialog.exec()
 
 	@pyqtSlot()

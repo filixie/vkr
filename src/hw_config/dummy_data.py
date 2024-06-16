@@ -1,4 +1,4 @@
-from hw_config.hw_config_model import ComponentCategory
+from hw_config_model import ComponentCategory
 
 dummy_data = {
 	ComponentCategory.SYSTEM_UNIT: [

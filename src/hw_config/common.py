@@ -28,7 +28,7 @@ def _get_action_fields(obj):
 class ActionSet:
 
 	@classmethod
-	def fresh_(cls, owner=None):
+	def _fresh(cls, owner=None):
 		actions = {f.name: f.type(parent=owner) for f in _get_action_fields(cls)}
 		return cls(**actions)
 

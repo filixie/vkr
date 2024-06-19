@@ -49,11 +49,11 @@ class JsonFormat(AbstractFileFormat):
 		return 'json',
 
 	def read(self, file_name):
-		with io.open(file_name, 'rt') as file:
-			json.load(file)
+		with io.open(file_name, 'rt', encoding='utf-8') as file:
+			return json.load(file)
 
 	def write(self, file_name, data):
-		with io.open(file_name, 'wt') as file:
+		with io.open(file_name, 'wt', encoding='utf-8') as file:
 			json.dump(data, file, ensure_ascii=False, indent=4)
 
 
